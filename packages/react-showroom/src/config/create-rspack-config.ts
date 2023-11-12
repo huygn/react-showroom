@@ -74,7 +74,6 @@ export const createClientRspackConfig = (
     theme,
     html,
   } = config;
-  console.log({ html });
 
   const isProd = mode === 'production';
 

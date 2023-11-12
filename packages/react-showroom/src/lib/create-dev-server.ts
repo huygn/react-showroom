@@ -15,10 +15,6 @@ export const createDevServer = (
 ) => {
   const { assetDir, basePath } = config;
 
-  const webpackConfig = createClientWebpackConfig('development', config, {
-    measure: options.measure,
-    operation: 'serve',
-  });
   const devServerOptions = Object.assign<DevServerConfig, DevServerConfig>(
     {
       port: options.port,
@@ -53,15 +49,14 @@ export const createDevServer = (
       measure: options.measure,
       operation: 'serve',
     });
-
-    rspackConfig.stats = 'errors-warnings'; // to debug
-
-    console.log(rspackConfig);
-
     const compiler = createCompiler(rspackConfig);
     return new RspackDevServer(devServerOptions, compiler);
   }
 
+  const webpackConfig = createClientWebpackConfig('development', config, {
+    measure: options.measure,
+    operation: 'serve',
+  });
   const compiler = webpack(webpackConfig);
   return new webpackDevServer(devServerOptions, compiler);
 };
