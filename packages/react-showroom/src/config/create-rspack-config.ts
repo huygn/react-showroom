@@ -24,7 +24,7 @@ import {
   generateSectionsAndImports,
   generateWrapper,
 } from '../lib/generate-showroom-data';
-import { logToStdout } from '../lib/log-to-stdout';
+import { logToStdout, green } from '../lib/log-to-stdout';
 import { mergeWebpackConfig } from '../lib/merge-webpack-config';
 import {
   moduleFileExtensions,
@@ -149,6 +149,7 @@ export const createClientRspackConfig = (
           : new WebpackMessages({
               name: 'showroom',
               logger: logToStdout,
+              onComplete: logBuildTime,
             }),
         operation === 'build' && assetDir
           ? new rspack.CopyRspackPlugin({
@@ -224,6 +225,7 @@ export const createSsrRspackConfig = (
             new WebpackMessages({
               name: 'ssr',
               logger: logToStdout,
+              onComplete: logBuildTime,
             }),
           ],
       optimization: {
@@ -655,3 +657,13 @@ const createBaseRspackConfig = (
     },
   };
 };
+
+// https://github.com/lukeed/webpack-messages/blob/master/index.js#L38
+function logBuildTime(name: string, stats?: rspack.Stats) {
+  let message = `Completed${name}`;
+  if (stats && stats.compilation.startTime && stats.compilation.endTime) {
+    const sec = (stats.compilation.endTime - stats.compilation.startTime) / 1e3;
+    message += ` in ${sec}s!`;
+  }
+  logToStdout(green(message));
+}
