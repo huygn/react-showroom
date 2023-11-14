@@ -564,7 +564,7 @@ const createBaseRspackConfig = (
         },
         {
           test: /\.css$/,
-          type: 'css',
+          type: 'css/auto',
           // if app don't need CSS, we still need to handle css in @showroomjs/device-frames
           ...(css.enabled
             ? {}
@@ -588,8 +588,8 @@ const createBaseRspackConfig = (
         sass
           ? {
               test: /\.s[ac]ss$/i,
-              type: 'css',
-              use: [{ loader: require.resolve('sass-loader') }],
+              type: 'css/auto',
+              use: [require.resolve('sass-loader')],
             }
           : undefined,
       ].filter(isDefined),
