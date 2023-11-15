@@ -165,15 +165,29 @@ export const createClientRspackConfig = (
               ],
             })
           : undefined,
-        // TODO no replacement yet (& Workbox is dead too)
-        // theme.serviceWorker && operation === 'build'
-        //   ? new (require('workbox-webpack-plugin').InjectManifest)({
-        //       swSrc: resolveShowroom(
-        //         'client/service-worker/_showroom-service-worker.ts'
-        //       ),
-        //       exclude: [/.wasm$/, /.map$/, /.html$/],
-        //     })
-        //   : undefined,
+        theme.serviceWorker && operation === 'build'
+          ? {
+              async apply(
+                compiler: Parameters<
+                  import('inject-manifest-plugin').InjectManifestPlugin['apply']
+                >[0]
+              ) {
+                // have to do this bc this plugin is ESM only
+                const {
+                  InjectManifestPlugin,
+                }: typeof import('inject-manifest-plugin') = await eval(
+                  "import('inject-manifest-plugin')"
+                );
+                new InjectManifestPlugin({
+                  file: resolveShowroom(
+                    'client/service-worker/_showroom-service-worker.ts'
+                  ),
+                  injectionPoint: 'self.__WB_MANIFEST',
+                  exclude: ['*.wasm', '*.map', '*.html'],
+                }).apply(compiler);
+              },
+            }
+          : undefined,
       ].filter(isDefined),
     }),
     userConfig,
