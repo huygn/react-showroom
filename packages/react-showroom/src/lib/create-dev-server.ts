@@ -2,19 +2,19 @@ import type { NormalizedReactShowroomConfiguration } from '@showroomjs/core/reac
 import webpack from 'webpack';
 import webpackDevServer from 'webpack-dev-server';
 import { createClientWebpackConfig } from '../config/create-webpack-config';
-
-type DevServerConfig = webpackDevServer.Configuration;
+import {
+  RspackDevServer,
+  Configuration as DevServerConfig,
+} from '@rspack/dev-server';
+import { createCompiler } from '@rspack/core';
+import { createClientRspackConfig } from '../config/create-rspack-config';
 
 export const createDevServer = (
   config: NormalizedReactShowroomConfiguration,
-  options: { measure?: boolean; host: string; port: number }
+  options: { measure?: boolean; host: string; port: number; rspack?: boolean }
 ) => {
   const { assetDir, basePath } = config;
 
-  const webpackConfig = createClientWebpackConfig('development', config, {
-    measure: options.measure,
-    operation: 'serve',
-  });
   const devServerOptions = Object.assign<DevServerConfig, DevServerConfig>(
     {
       port: options.port,
@@ -44,9 +44,19 @@ export const createDevServer = (
       : {}
   );
 
+  if (options.rspack) {
+    const rspackConfig = createClientRspackConfig('development', config, {
+      measure: options.measure,
+      operation: 'serve',
+    });
+    const compiler = createCompiler(rspackConfig);
+    return new RspackDevServer(devServerOptions, compiler);
+  }
+
+  const webpackConfig = createClientWebpackConfig('development', config, {
+    measure: options.measure,
+    operation: 'serve',
+  });
   const compiler = webpack(webpackConfig);
-
-  const server = new webpackDevServer(devServerOptions, compiler);
-
-  return server;
+  return new webpackDevServer(devServerOptions, compiler);
 };
