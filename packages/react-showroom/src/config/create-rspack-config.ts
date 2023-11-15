@@ -621,7 +621,7 @@ const createBaseRspackConfig = (
       virtualModules,
       isServe
         ? new ReactRefreshPlugin({
-            // TODO check options?
+            include: /\.(js|jsx|ts|tsx)$/,
           })
         : undefined,
       // TODO https://www.rspack.dev/guide/profile.html#build-performance-profile
